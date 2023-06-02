@@ -4,11 +4,13 @@
  */
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Figure {
 
     //Змінні екземпляру
     private int[][] figureForm; //Визначає форму фігури
+    private Grid[] usedGrids;
     private int x; //Відносні координати розташування, лівий верхній кут фігури
     private int y; //Відносні координати розташування
     private int gridSize; //Розмір клітинки
@@ -33,6 +35,23 @@ public class Figure {
         this.x = x;
         this.y = y;
         this.gridSize = gridSize;
+        this.usedGrids = findGrids();
+    }
+
+    private Grid[] findGrids() {
+        ArrayList<Grid> gridList = new ArrayList<Grid>();
+        for(int row = 0; row < figureForm.length; row++){
+
+            int[] currentRow = figureForm[row];
+            for(int column = 0; column < currentRow.length; column++){
+
+                if(currentRow[column] == 1){
+                    Grid grid = new Grid(x + column, y + row, gridSize);
+                    gridList.add(grid);
+                }
+            }
+        }
+        return gridList.toArray(Grid[]::new);
     }
 
     /**
@@ -41,20 +60,24 @@ public class Figure {
      * @param color колір фігури.
      */
     public void drawFigure(Graphics g, Color color) {
-        for(int row = 0; row < figureForm.length; row++){
-            int[] currentRow = figureForm[row];
-
-            for(int column = 0; column < currentRow.length; column++){
-
-                if(currentRow[column] == 1){
-                    Grid grid = new Grid(x + column, y + row, gridSize);
-                    grid.fillGrid(g, color);
-                    grid.drawGrid(g, color.darker().darker());
-                }
-            }
+        for(Grid grid : usedGrids){
+            grid.fillGrid(g, color);
+            grid.drawGrid(g, color.darker().darker());
         }
     }
 
+    public boolean checkCollisionWith(Figure figure, Sides movementVector){
+        for(Grid figureGrid : usedGrids){
+            for(Grid givenFigureGrid : figure.getUsedGrids()){
+                if (figureGrid.checkCollisionWith(givenFigureGrid, movementVector)) return true;
+            }
+        }
+        return false;
+    }
+
+    public Grid[] getUsedGrids() {
+        return usedGrids;
+    }
 
     public void setFigureForm(int[][] figureForm) {
         this.figureForm = figureForm;

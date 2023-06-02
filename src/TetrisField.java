@@ -48,11 +48,13 @@ public class TetrisField extends JPanel {
     protected void paintComponent(Graphics g) {
 
         //drawGridfield(g);
-        Figure line = new Figure(new int[][]{{1, 1, 1}}, 2, 2, gridSize);
-        line.drawFigure(g, Color.orange);
+        Figure line1 = new Figure(new int[][]{{1, 1, 1, 1}}, 2, 2, gridSize);
+        line1.drawFigure(g, Color.orange);
 
-        line = new Figure(new int[][]{{1, 0, 1}, {1, 1, 0}}, 0, 0, gridSize);
-        line.drawFigure(g, Color.RED);
+        Figure line2 = new Figure(new int[][]{{1}, {1}, {0}, {1}, {1}}, 1, 0, gridSize);
+        line2.drawFigure(g, Color.RED);
+
+        System.out.println(line2.checkCollisionWith(line1, Sides.BOTTOM));
     }
 
     /**

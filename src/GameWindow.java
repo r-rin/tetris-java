@@ -23,8 +23,8 @@ class GameWindow extends JFrame {
 
         //Налаштування розміру ігрового поля
         //TODO: Перетворити на кнопки, слайдери у бічному меню.
-        int columns = 18;
-        int rows = 6;
+        int columns = 6;
+        int rows = 12;
         int gridSize = 30;
 
         SideMenu sideMenu = new SideMenu();
