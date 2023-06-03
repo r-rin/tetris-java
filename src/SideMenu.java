@@ -9,6 +9,6 @@ import java.awt.*;
 public class SideMenu extends JPanel {
 
     public SideMenu() {
-        this.setBackground(Color.RED);
+
     }
 }

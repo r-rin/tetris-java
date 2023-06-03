@@ -47,14 +47,19 @@ public class TetrisField extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
 
-        //drawGridfield(g);
+        drawGridField(g, Color.lightGray);
         Figure line1 = new Figure(new int[][]{{1, 1, 1, 1}}, 2, 2, gridSize);
         line1.drawFigure(g, Color.orange);
 
-        Figure line2 = new Figure(new int[][]{{1}, {1}, {0}, {1}, {1}}, 1, 0, gridSize);
+        Figure line2 = new Figure(new int[][]{{1}, {1}, {0}, {1}, {1}}, 1, 1, gridSize);
         line2.drawFigure(g, Color.RED);
 
-        System.out.println(line2.checkCollisionWith(line1, Sides.BOTTOM));
+        System.out.println(line2.checkCollisionWith(line1, Sides.RIGHT));
+
+        line1.move(Sides.BOTTOM, 1);
+        line1.move(Sides.LEFT, 1);
+
+        line1.drawFigure(g, Color.orange);
     }
 
     /**

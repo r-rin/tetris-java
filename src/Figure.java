@@ -75,6 +75,40 @@ public class Figure {
         return false;
     }
 
+    public void move(Sides movementDirection, int offset){
+        switch (movementDirection){
+            case TOP -> {
+                y -= offset;
+            }
+            case RIGHT -> {
+                x += offset;
+            }
+            case LEFT -> {
+                x -= offset;
+            }
+            case BOTTOM -> {
+                y += offset;
+            }
+        }
+        usedGrids = findGrids();
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
     public Grid[] getUsedGrids() {
         return usedGrids;
     }
