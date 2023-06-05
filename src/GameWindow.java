@@ -14,6 +14,7 @@ class GameWindow extends JFrame {
         this.setMinimumSize(new Dimension(800, 500));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
+        this.setResizable(false);
 
         initWindowPanels();
 
