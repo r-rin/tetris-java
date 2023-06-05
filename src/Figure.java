@@ -13,7 +13,8 @@ public class Figure {
     private Grid[] usedGrids;
     private int x; //Відносні координати розташування, лівий верхній кут фігури
     private int y; //Відносні координати розташування
-    private int gridSize; //Розмір клітинки
+    private Color color;
+    private TetrisField field;
 
     /*
         Відносна координата означає те, що ми вказуємо не координати у JPanel, а координати клітинки поля.
@@ -28,17 +29,19 @@ public class Figure {
      * @param figureForm форма фігури, у вигляді двовимірного масиву, де 1 - зафарбовані клітинки, 0 - порожні.
      * @param x х-координата верхнього лівого кутку фігури
      * @param y у-координата верхнього лівого кутку фігури
-     * @param gridSize розмір клітинки.
+     * @param field поле гри
+     * @param color колір
      */
-    public Figure(int[][] figureForm, int x, int y, int gridSize){
+    public Figure(int[][] figureForm, int x, int y, TetrisField field, Color color){
         this.figureForm = figureForm;
         this.x = x;
         this.y = y;
-        this.gridSize = gridSize;
+        this.field = field;
+        this.color = color;
         this.usedGrids = findGrids();
     }
 
-    private Grid[] findGrids() {
+    public Grid[] findGrids() {
         ArrayList<Grid> gridList = new ArrayList<Grid>();
         for(int row = 0; row < figureForm.length; row++){
 
@@ -46,7 +49,7 @@ public class Figure {
             for(int column = 0; column < currentRow.length; column++){
 
                 if(currentRow[column] == 1){
-                    Grid grid = new Grid(x + column, y + row, gridSize);
+                    Grid grid = new Grid(x + column, y + row, field.getGridSize());
                     gridList.add(grid);
                 }
             }
@@ -66,10 +69,49 @@ public class Figure {
         }
     }
 
+    public void drawFigure(Graphics g) {
+        for(Grid grid : usedGrids){
+            grid.fillGrid(g, color);
+            grid.drawGrid(g, color.darker().darker());
+        }
+    }
+
     public boolean checkCollisionWith(Figure figure, Sides movementVector){
         for(Grid figureGrid : usedGrids){
             for(Grid givenFigureGrid : figure.getUsedGrids()){
                 if (figureGrid.checkCollisionWith(givenFigureGrid, movementVector)) return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean checkBorders(Sides movementDirection){
+        int figureHeight = figureForm.length;
+        int figureWidth = figureForm[0].length;
+        switch (movementDirection){
+            case BOTTOM -> {
+                if(getY() + figureHeight >= field.getRows()){
+                    return true;
+                }
+                return false;
+            }
+            case LEFT -> {
+                if(getX() <= 0){
+                    return true;
+                }
+                return false;
+            }
+            case RIGHT -> {
+                if(getX() + figureWidth >= field.getColumns()){
+                    return true;
+                }
+                return false;
+            }
+            case TOP -> {
+                if(getY() <= 0){
+                    return true;
+                }
+                return false;
             }
         }
         return false;
@@ -111,6 +153,10 @@ public class Figure {
 
     public Grid[] getUsedGrids() {
         return usedGrids;
+    }
+
+    public void setUsedGrids(Grid[] usedGrids) {
+        this.usedGrids = usedGrids;
     }
 
     public void setFigureForm(int[][] figureForm) {

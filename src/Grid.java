@@ -44,8 +44,10 @@ public class Grid {
      * @param color колір клітинки.
      */
     public void drawGrid(Graphics g, Color color) {
-        g.setColor(color);
-        g.drawRect(x * size, y * size, size, size);
+        if(x >= 0 || y >= 0){
+            g.setColor(color);
+            g.drawRect(x * size, y * size, size, size);
+        }
     }
 
     /**
@@ -54,8 +56,10 @@ public class Grid {
      * @param color колір клітинки.
      */
     public void fillGrid(Graphics g, Color color) {
-        g.setColor(color);
-        g.fillRect(x * size, y * size, size, size);
+        if(x >= 0 || y >= 0) {
+            g.setColor(color);
+            g.fillRect(x * size, y * size, size, size);
+        }
     }
 
     public boolean checkCollisionWith(Grid grid, Sides movementVector){
@@ -79,6 +83,9 @@ public class Grid {
                 if (x == grid.getX()) {
                     return y - 1 == grid.getY();
                 }
+            }
+            case CURRENT -> {
+                return x == grid.getX() && y == grid.getY();
             }
         }
         return false;

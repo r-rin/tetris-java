@@ -9,13 +9,15 @@ import java.awt.*;
 
 class GameWindow extends JFrame {
 
+    TetrisField tetrisField;
     public GameWindow() {
-        this.setSize(new Dimension(800, 500));
+        this.setMinimumSize(new Dimension(800, 500));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
 
         initWindowPanels();
 
+        this.pack();
         this.setVisible(true);
     }
 
@@ -23,12 +25,12 @@ class GameWindow extends JFrame {
 
         //Налаштування розміру ігрового поля
         //TODO: Перетворити на кнопки, слайдери у бічному меню.
-        int columns = 6;
-        int rows = 12;
+        int columns = 10;
+        int rows = 20;
         int gridSize = 30;
 
         SideMenu sideMenu = new SideMenu();
-        TetrisField tetrisField = new TetrisField(columns, rows, gridSize);
+        tetrisField = new TetrisField(columns, rows, gridSize);
 
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.LINE_AXIS));

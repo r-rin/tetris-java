@@ -9,10 +9,15 @@ import java.awt.*;
 
 public class TetrisField extends JPanel {
 
+    //Налаштування
+    private boolean isGridVisible = true;
+
     //Змінні екземпляру, які зберігають налаштування поля
     private int columns;
     private int rows;
     private int gridSize;
+
+    GameHandler gameHandler;
 
     /**
      * Порожній конструктор
@@ -38,6 +43,8 @@ public class TetrisField extends JPanel {
         this.setMaximumSize(new Dimension(panelWidth, panelHeight));
 
         this.setBorder(new BevelBorder(1));
+
+        gameHandler = new GameHandler(this);
     }
 
     /**
@@ -46,20 +53,19 @@ public class TetrisField extends JPanel {
      */
     @Override
     protected void paintComponent(Graphics g) {
+            g.clearRect(0, 0, getWidth(), getHeight());
 
-        drawGridField(g, Color.lightGray);
-        Figure line1 = new Figure(new int[][]{{1, 1, 1, 1}}, 2, 2, gridSize);
-        line1.drawFigure(g, Color.orange);
+            if(isGridVisible){
+                drawGridField(g, Color.lightGray);
+            }
 
-        Figure line2 = new Figure(new int[][]{{1}, {1}, {0}, {1}, {1}}, 1, 1, gridSize);
-        line2.drawFigure(g, Color.RED);
-
-        System.out.println(line2.checkCollisionWith(line1, Sides.RIGHT));
-
-        line1.move(Sides.BOTTOM, 1);
-        line1.move(Sides.LEFT, 1);
-
-        line1.drawFigure(g, Color.orange);
+            if(!gameHandler.gameEnded){
+                gameHandler.drawFrame(g);
+            } else {
+                for(Figure figure : gameHandler.figures){
+                    figure.drawFigure(g);
+                }
+            }
     }
 
     /**
@@ -73,5 +79,33 @@ public class TetrisField extends JPanel {
                 grid.drawGrid(g, color);
             }
         }
+    }
+
+    public void setGridVisible(boolean gridVisible) {
+        isGridVisible = gridVisible;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public int getGridSize() {
+        return gridSize;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setColumns(int columns) {
+        this.columns = columns;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public void setGridSize(int gridSize) {
+        this.gridSize = gridSize;
     }
 }
