@@ -4,28 +4,33 @@ import java.util.Random;
 
 public class GameHandler {
 
-    int[][][] possibleForms = {{{1, 1, 0}, {0, 1, 1}},
+    boolean canMoveUp = true;
+
+    private int[][][] possibleForms = {{{1, 1, 0}, {0, 1, 1}},
             {{1, 0}, {1, 0}, {1, 1}},
             {{1, 1}, {1, 1}},
             {{1, 1, 1, 1}},
             {{0, 1, 0}, {1, 1, 1}}};
-    ArrayList<Figure> figures = new ArrayList<>();
-    Figure activeFigure = null;
-    Random rand = new Random();
+    private ArrayList<Figure> figures = new ArrayList<>();
+    private Figure activeFigure = null;
+    private Random rand = new Random();
 
-    int framesPerFall = 2;
-    double timeBetweenFrames = 0.7;
-    int currentFrame = 0;
+    private int framesPerFall = 50;
+    private double timeBetweenFrames = 0.01;
+    private int currentFrame = 0;
 
-    UserAction action = null;
-    Sides actionDirection = null;
+    private UserAction action = null;
+    private Sides actionDirection = null;
 
-    TetrisField field;
+    private TetrisField field;
+    private KeyEventHandler keyEventHandler;
 
     boolean gameEnded = false;
 
     public GameHandler(TetrisField tetrisField) {
         this.field = tetrisField;
+        this.keyEventHandler = new KeyEventHandler(this);
+        field.addKeyListener(keyEventHandler);
     }
 
     public void run() throws InterruptedException {
@@ -41,32 +46,54 @@ public class GameHandler {
             figure.drawFigure(g);
         }
 
-        if(activeFigure == null){
-            int[][] selectedForm = possibleForms[rand.nextInt(0, possibleForms.length)];
-            int xPos = field.getColumns()/2 - selectedForm[0].length/2;
-            int yPos = -(selectedForm.length)+1;
-            Color randomColor = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
-
-            activeFigure = new Figure(selectedForm, xPos, yPos, field, randomColor);
-            if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT)) gameEnded = true;
-            activeFigure.drawFigure(g);
-        } else {
-            checkBottom(g);
-            if(activeFigure != null){
-                doUserAction();
-                if(currentFrame == framesPerFall){
-                    if(!checkCollisionWithAllFigures(activeFigure, Sides.BOTTOM)){
-                        activeFigure.move(Sides.BOTTOM, 1);
-                    }
-                } else {
-                    currentFrame += 1;
-                }
-                activeFigure.drawFigure(g);
-            }
+        if (!gameEnded){
+            drawActiveFigure(g);
         }
     }
 
-    private void checkBottom(Graphics g) {
+    private void drawActiveFigure(Graphics g) {
+
+        if(activeFigure == null){
+            activeFigure = createNewFigure();
+            activeFigure.drawFigure(g);
+            if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT)){
+                gameEnded = true;
+                figures.add(activeFigure);
+                activeFigure = null;
+            }
+        }
+
+        doUserAction();
+
+        checkBottomCollision(g);
+
+        if(activeFigure != null){
+            doActiveFigureFall();
+            activeFigure.drawFigure(g);
+        }
+    }
+
+    private void doActiveFigureFall() {
+        if(currentFrame == framesPerFall){
+            if(!checkCollisionWithAllFigures(activeFigure, Sides.BOTTOM)){
+                activeFigure.move(Sides.BOTTOM, 1);
+                currentFrame = 0;
+            }
+        } else {
+            currentFrame += 1;
+        }
+    }
+
+    private Figure createNewFigure() {
+        int[][] selectedForm = possibleForms[rand.nextInt(0, possibleForms.length)];
+        int xPos = field.getColumns()/2 - selectedForm[0].length/2;
+        int yPos = -(selectedForm.length)+1;
+        Color randomColor = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+
+        return new Figure(selectedForm, xPos, yPos, field, randomColor);
+    }
+
+    private void checkBottomCollision(Graphics g) {
         if(checkCollisionWithAllFigures(activeFigure, Sides.BOTTOM) || activeFigure.checkBorders(Sides.BOTTOM)){
             figures.add(activeFigure);
             activeFigure.drawFigure(g);
@@ -81,14 +108,18 @@ public class GameHandler {
                 int[][] previousForm = activeFigure.getFigureForm();
 
                 if(actionDirection == Sides.LEFT){
-                    //Обертання проти годинникової стрілки
-                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT)){
+                    activeFigure.setFigureForm(activeFigure.rotateFigure(actionDirection));
+                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT) || activeFigure.checkBorders(Sides.CURRENT)){
                         activeFigure.setFigureForm(previousForm);
+                    } else {
+                        activeFigure.setUsedGrids(activeFigure.findGrids());
                     }
                 } else if (actionDirection == Sides.RIGHT) {
-                    //Обертання за годинниковою стрілкою
-                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT)){
+                    activeFigure.setFigureForm(activeFigure.rotateFigure(actionDirection));
+                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT) || activeFigure.checkBorders(Sides.CURRENT)){
                         activeFigure.setFigureForm(previousForm);
+                    } else {
+                        activeFigure.setUsedGrids(activeFigure.findGrids());
                     }
                 }
             } else if (action == UserAction.MOVE) {
@@ -107,5 +138,29 @@ public class GameHandler {
             if(activeFigure.checkCollisionWith(figure, direction)) return true;
         }
         return false;
+    }
+
+    public UserAction getAction() {
+        return action;
+    }
+
+    public Sides getActionDirection() {
+        return actionDirection;
+    }
+
+    public void setActionDirection(Sides actionDirection) {
+        this.actionDirection = actionDirection;
+    }
+
+    public void setAction(UserAction action) {
+        this.action = action;
+    }
+
+    public boolean isActiveFigureNull() {
+        return activeFigure == null;
+    }
+
+    public int getCurrentFrame() {
+        return currentFrame;
     }
 }

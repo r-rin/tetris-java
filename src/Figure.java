@@ -113,8 +113,36 @@ public class Figure {
                 }
                 return false;
             }
+            case CURRENT -> {
+                if(getX() + figureWidth > field.getColumns() || getY() + figureHeight > field.getRows()){
+                    return true;
+                }
+                return false;
+            }
         }
         return false;
+    }
+
+    public int[][] rotateFigure(Sides direction) {
+        int figureWidth = figureForm[0].length;
+        int figureHeight = figureForm.length;
+        int[][] rotatedArray = new int[figureWidth][figureHeight];
+
+        if(direction == Sides.LEFT){
+            for (int i = 0; i < figureHeight; i++) {
+                for (int k = 0; k < figureWidth; k++) {
+                    rotatedArray[figureWidth - k - 1][i] = figureForm[i][k];
+                }
+            }
+        } else if (direction == Sides.RIGHT) {
+            for (int i = 0; i < figureHeight; i++) {
+                for (int k = 0; k < figureWidth; k++) {
+                    rotatedArray[k][figureHeight - i - 1] = figureForm[i][k];
+                }
+            }
+        }
+
+        return rotatedArray;
     }
 
     public void move(Sides movementDirection, int offset){

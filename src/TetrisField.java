@@ -31,13 +31,15 @@ public class TetrisField extends JPanel {
      * @param gridSize розмір сторони клітинки поля
      */
     public TetrisField(int columns, int rows, int gridSize) {
-
+        setFocusable(true);
+        requestFocus();
+        requestFocusInWindow();
         this.columns = columns;
         this.gridSize = gridSize;
         this.rows = rows;
 
-        int panelWidth = columns * gridSize;
-        int panelHeight = rows * gridSize;
+        int panelWidth = columns * gridSize + 3;
+        int panelHeight = rows * gridSize + 3;
 
         this.setPreferredSize(new Dimension(panelWidth, panelHeight));
         this.setMaximumSize(new Dimension(panelWidth, panelHeight));
@@ -53,19 +55,11 @@ public class TetrisField extends JPanel {
      */
     @Override
     protected void paintComponent(Graphics g) {
-            g.clearRect(0, 0, getWidth(), getHeight());
-
-            if(isGridVisible){
-                drawGridField(g, Color.lightGray);
-            }
-
-            if(!gameHandler.gameEnded){
-                gameHandler.drawFrame(g);
-            } else {
-                for(Figure figure : gameHandler.figures){
-                    figure.drawFigure(g);
-                }
-            }
+        g.clearRect(0, 0, getWidth(), getHeight());
+        if(isGridVisible){
+            drawGridField(g, Color.lightGray);
+        }
+        gameHandler.drawFrame(g);
     }
 
     /**

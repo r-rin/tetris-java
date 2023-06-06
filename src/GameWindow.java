@@ -27,9 +27,9 @@ class GameWindow extends JFrame {
         //Налаштування розміру ігрового поля
         //TODO: Перетворити на кнопки, слайдери у бічному меню.
 
-        int columns = 20;
-        int rows = 30;
-        int gridSize = 15;
+        int columns = 10;
+        int rows = 15;
+        int gridSize = 30;
 
         SideMenu sideMenu = new SideMenu();
         tetrisField = new TetrisField(columns, rows, gridSize);
