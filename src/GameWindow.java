@@ -10,11 +10,13 @@ import java.awt.*;
 class GameWindow extends JFrame {
 
     TetrisField tetrisField;
+    SideMenu sideMenu;
     public GameWindow() {
         this.setMinimumSize(new Dimension(800, 500));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
-        this.setResizable(false);
+        this.setResizable(true);
+        this.setLocationRelativeTo(null);
 
         initWindowPanels();
 
@@ -31,10 +33,11 @@ class GameWindow extends JFrame {
         int rows = 15;
         int gridSize = 30;
 
-        SideMenu sideMenu = new SideMenu();
+        sideMenu = new SideMenu(this);
         tetrisField = new TetrisField(columns, rows, gridSize);
 
         JPanel wrapper = new JPanel();
+        wrapper.setBackground(Color.black);
         wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.LINE_AXIS));
         wrapper.setBorder(new EmptyBorder(0, 50, 0, 50));
 
@@ -42,5 +45,9 @@ class GameWindow extends JFrame {
 
         this.add(sideMenu, BorderLayout.CENTER);
         this.add(wrapper, BorderLayout.EAST);
+    }
+
+    public TetrisField getTetrisField() {
+        return tetrisField;
     }
 }

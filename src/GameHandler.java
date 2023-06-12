@@ -1,5 +1,8 @@
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 public class GameHandler {
@@ -11,12 +14,12 @@ public class GameHandler {
             {{1, 1}, {1, 1}},
             {{1, 1, 1, 1}},
             {{0, 1, 0}, {1, 1, 1}}};
-    private ArrayList<Figure> figures = new ArrayList<>();
+    private ArrayList<Grid> gridsOnField = new ArrayList<>();
     private Figure activeFigure = null;
     private Random rand = new Random();
 
     private int framesPerFall = 50;
-    private double timeBetweenFrames = 0.01;
+    private double timeBetweenFrames = 0.1;
     private int currentFrame = 0;
 
     private UserAction action = null;
@@ -25,7 +28,7 @@ public class GameHandler {
     private TetrisField field;
     private KeyEventHandler keyEventHandler;
 
-    boolean gameEnded = false;
+    boolean gameEnded = true;
 
     public GameHandler(TetrisField tetrisField) {
         this.field = tetrisField;
@@ -34,6 +37,9 @@ public class GameHandler {
     }
 
     public void run() throws InterruptedException {
+        gridsOnField = new ArrayList<>();
+        activeFigure = null;
+        gameEnded = false;
         while (!gameEnded){
             field.repaint();
             Thread.sleep((long) (timeBetweenFrames*1000));
@@ -42,45 +48,130 @@ public class GameHandler {
 
     public void drawFrame(Graphics g) {
 
-        for(Figure figure : figures){
-            figure.drawFigure(g);
+        for(Grid grid : gridsOnField){
+            grid.fillGrid(g);
+            grid.drawGrid(g);
         }
 
         if (!gameEnded){
-            drawActiveFigure(g);
+            drawCurrentFrame(g);
         }
     }
 
-    private void drawActiveFigure(Graphics g) {
-
+    private void drawCurrentFrame(Graphics g) {
         if(activeFigure == null){
+            if(checkFilledRows()) return;
             activeFigure = createNewFigure();
             activeFigure.drawFigure(g);
-            if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT)){
+            if(checkGridCollision(activeFigure, Sides.CURRENT)){
+                gridsOnField.addAll(List.of(activeFigure.findGrids()));
                 gameEnded = true;
-                figures.add(activeFigure);
                 activeFigure = null;
+                return;
+            }
+        }
+        checkFigureBottom();
+        if(activeFigure != null){
+            doUserAction();
+            doFigureFall();
+            activeFigure.drawFigure(g);
+        }
+        currentFrame += 1;
+    }
+
+    private void checkFigureBottom() {
+        if(checkGridCollision(activeFigure, Sides.BOTTOM) || activeFigure.checkBorders(Sides.BOTTOM)){
+            gridsOnField.addAll(List.of(activeFigure.getUsedGrids()));
+            activeFigure = null;
+        }
+    }
+
+    private void doUserAction() {
+        if(action != null) {
+            if(action == UserAction.ROTATE){
+                int[][] previousForm = activeFigure.getFigureForm();
+
+                activeFigure.setFigureForm(activeFigure.rotateFigure(actionDirection));
+                activeFigure.setUsedGrids(activeFigure.findGrids());
+                if(checkGridCollision(activeFigure, Sides.CURRENT) || activeFigure.checkBorders(Sides.CURRENT)){
+                    activeFigure.setFigureForm(previousForm);
+                    activeFigure.setUsedGrids(activeFigure.findGrids());
+                }
+            } else if (action == UserAction.MOVE) {
+                if(!checkGridCollision(activeFigure, actionDirection) && !activeFigure.checkBorders(actionDirection)){
+                    activeFigure.move(actionDirection, 1);
+                }
+            }
+        }
+        action = null;
+        actionDirection = null;
+    }
+
+    private boolean checkGridCollision(Figure activeFigure, Sides actionDirection) {
+        for(Grid grid : gridsOnField){
+            if(activeFigure.checkCollisionWith(grid, actionDirection)) return true;
+        }
+        return false;
+    }
+
+    private boolean checkFilledRows() {
+        Grid[][] gridsMap = buildGridMap();
+        boolean isCleared = false;
+
+        for(int currentRow = 0; currentRow < gridsMap.length; currentRow++){
+            if(Arrays.stream(gridsMap[currentRow]).noneMatch(Objects::isNull)){
+                removeAllGrids(currentRow);
+                moveGridsDown(gridsMap, currentRow);
+                currentRow = 0;
+                gridsMap = buildGridMap();
+                isCleared = true;
             }
         }
 
-        doUserAction();
+        return isCleared;
+    }
 
-        checkBottomCollision(g);
+    private Grid[][] buildGridMap() {
+        Grid[][] gridsMap = new Grid[field.getRows()][field.getColumns()];
 
-        if(activeFigure != null){
-            doActiveFigureFall();
-            activeFigure.drawFigure(g);
+        for(Grid grid : gridsOnField){
+            if(grid.getY() > -1){
+                gridsMap[grid.getY()][grid.getX()] = grid;
+            }
+        }
+        return gridsMap;
+    }
+
+    private void removeAllGrids(int currentRow) {
+        ArrayList<Grid> removeList = new ArrayList<>();
+
+        for(Grid grid : gridsOnField){
+            if(grid.getY() == currentRow){
+                removeList.add(grid);
+            }
+        }
+
+        for(Grid grid : removeList){
+            gridsOnField.remove(grid);
         }
     }
 
-    private void doActiveFigureFall() {
-        if(currentFrame == framesPerFall){
-            if(!checkCollisionWithAllFigures(activeFigure, Sides.BOTTOM)){
+    private void moveGridsDown(Grid[][] gridsMap, int toRow) {
+        for(int currentRow = 0; currentRow < toRow; currentRow++){
+            for(Grid selectedGrid : gridsMap[currentRow]){
+                if(selectedGrid != null){
+                    selectedGrid.moveGrid(Sides.BOTTOM, 1);
+                }
+            }
+        }
+    }
+
+    private void doFigureFall() {
+        if(currentFrame >= framesPerFall){
+            if(!checkGridCollision(activeFigure, Sides.BOTTOM) && !activeFigure.checkBorders(Sides.BOTTOM)){
                 activeFigure.move(Sides.BOTTOM, 1);
                 currentFrame = 0;
             }
-        } else {
-            currentFrame += 1;
         }
     }
 
@@ -91,53 +182,6 @@ public class GameHandler {
         Color randomColor = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
 
         return new Figure(selectedForm, xPos, yPos, field, randomColor);
-    }
-
-    private void checkBottomCollision(Graphics g) {
-        if(checkCollisionWithAllFigures(activeFigure, Sides.BOTTOM) || activeFigure.checkBorders(Sides.BOTTOM)){
-            figures.add(activeFigure);
-            activeFigure.drawFigure(g);
-            activeFigure = null;
-        }
-    }
-
-    private void doUserAction() {
-        if(action != null) {
-            if(action == UserAction.ROTATE){
-
-                int[][] previousForm = activeFigure.getFigureForm();
-
-                if(actionDirection == Sides.LEFT){
-                    activeFigure.setFigureForm(activeFigure.rotateFigure(actionDirection));
-                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT) || activeFigure.checkBorders(Sides.CURRENT)){
-                        activeFigure.setFigureForm(previousForm);
-                    } else {
-                        activeFigure.setUsedGrids(activeFigure.findGrids());
-                    }
-                } else if (actionDirection == Sides.RIGHT) {
-                    activeFigure.setFigureForm(activeFigure.rotateFigure(actionDirection));
-                    if(checkCollisionWithAllFigures(activeFigure, Sides.CURRENT) || activeFigure.checkBorders(Sides.CURRENT)){
-                        activeFigure.setFigureForm(previousForm);
-                    } else {
-                        activeFigure.setUsedGrids(activeFigure.findGrids());
-                    }
-                }
-            } else if (action == UserAction.MOVE) {
-                if(!checkCollisionWithAllFigures(activeFigure, actionDirection) && !activeFigure.checkBorders(actionDirection)){
-                    activeFigure.move(actionDirection, 1);
-                    activeFigure.setUsedGrids(activeFigure.findGrids());
-                }
-            }
-        }
-        action = null;
-        actionDirection = null;
-    }
-
-    private boolean checkCollisionWithAllFigures(Figure activeFigure, Sides direction) {
-        for(Figure figure : figures){
-            if(activeFigure.checkCollisionWith(figure, direction)) return true;
-        }
-        return false;
     }
 
     public UserAction getAction() {
@@ -160,7 +204,7 @@ public class GameHandler {
         return activeFigure == null;
     }
 
-    public int getCurrentFrame() {
-        return currentFrame;
+    public void restart() throws InterruptedException {
+        run();
     }
 }

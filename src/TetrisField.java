@@ -69,7 +69,7 @@ public class TetrisField extends JPanel {
     public void drawGridField(Graphics g, Color color) {
         for(int row = 0; row < rows; row++){
             for(int column = 0; column < columns; column++){
-                Grid grid = new Grid(column, row, gridSize);
+                Grid grid = new Grid(column, row, gridSize, null);
                 grid.drawGrid(g, color);
             }
         }

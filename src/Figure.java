@@ -14,7 +14,7 @@ public class Figure {
     private int x; //Відносні координати розташування, лівий верхній кут фігури
     private int y; //Відносні координати розташування
     private Color color;
-    private TetrisField field;
+    private final TetrisField field;
 
     /*
         Відносна координата означає те, що ми вказуємо не координати у JPanel, а координати клітинки поля.
@@ -42,14 +42,14 @@ public class Figure {
     }
 
     public Grid[] findGrids() {
-        ArrayList<Grid> gridList = new ArrayList<Grid>();
+        ArrayList<Grid> gridList = new ArrayList<>();
         for(int row = 0; row < figureForm.length; row++){
 
             int[] currentRow = figureForm[row];
             for(int column = 0; column < currentRow.length; column++){
 
                 if(currentRow[column] == 1){
-                    Grid grid = new Grid(x + column, y + row, field.getGridSize());
+                    Grid grid = new Grid(x + column, y + row, field.getGridSize(), color);
                     gridList.add(grid);
                 }
             }
@@ -71,8 +71,8 @@ public class Figure {
 
     public void drawFigure(Graphics g) {
         for(Grid grid : usedGrids){
-            grid.fillGrid(g, color);
-            grid.drawGrid(g, color.darker().darker());
+            grid.fillGrid(g);
+            grid.drawGrid(g);
         }
     }
 
@@ -81,6 +81,13 @@ public class Figure {
             for(Grid givenFigureGrid : figure.getUsedGrids()){
                 if (figureGrid.checkCollisionWith(givenFigureGrid, movementVector)) return true;
             }
+        }
+        return false;
+    }
+
+    public boolean checkCollisionWith(Grid grid, Sides movementVector){
+        for(Grid figureGrid : usedGrids){
+            if (figureGrid.checkCollisionWith(grid, movementVector)) return true;
         }
         return false;
     }
@@ -160,7 +167,9 @@ public class Figure {
                 y += offset;
             }
         }
-        usedGrids = findGrids();
+        for(Grid grid : usedGrids){
+            grid.moveGrid(movementDirection, offset);
+        }
     }
 
     public int getY() {
@@ -193,5 +202,9 @@ public class Figure {
 
     public int[][] getFigureForm() {
         return figureForm;
+    }
+
+    public TetrisField getField() {
+        return field;
     }
 }
