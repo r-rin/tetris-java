@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,10 +37,7 @@ public class GameHandler {
         field.addKeyListener(keyEventHandler);
     }
 
-    public void run() throws InterruptedException {
-        gridsOnField = new ArrayList<>();
-        activeFigure = null;
-        gameEnded = false;
+    public void runGame() throws InterruptedException {
         while (!gameEnded){
             field.repaint();
             Thread.sleep((long) (timeBetweenFrames*1000));
@@ -204,7 +202,37 @@ public class GameHandler {
         return activeFigure == null;
     }
 
-    public void restart() throws InterruptedException {
-        run();
+    public void restart(JButton button) throws InterruptedException {
+        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                if(gameEnded){
+                    button.setEnabled(false);
+                    gameEnded = false;
+                    gridsOnField = new ArrayList<>();
+                    activeFigure = null;
+                    field.requestFocus();
+                    field.requestFocusInWindow();
+                    runGame();
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                super.done();
+                button.setEnabled(true);
+            }
+        };
+
+        worker.execute();
+    }
+
+    public void setFramesPerFall(int framesPerFall) {
+        this.framesPerFall = framesPerFall;
+    }
+
+    public void setTimeBetweenFrames(double timeBetweenFrames) {
+        this.timeBetweenFrames = timeBetweenFrames;
     }
 }

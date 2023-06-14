@@ -6,6 +6,7 @@
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import java.awt.*;
+import java.util.HashMap;
 
 public class TetrisField extends JPanel {
 
@@ -47,6 +48,28 @@ public class TetrisField extends JPanel {
         this.setBorder(new BevelBorder(1));
 
         gameHandler = new GameHandler(this);
+    }
+
+    public TetrisField(HashMap<GameSettings, Object> settings) {
+        setFocusable(true);
+        requestFocus();
+        requestFocusInWindow();
+        this.columns = (int) settings.get(GameSettings.NCOLUMNS);
+        this.gridSize = (int) settings.get(GameSettings.GRIDSIZE);
+        this.rows = (int) settings.get(GameSettings.NROWS);
+
+        int panelWidth = columns * gridSize + 2;
+        int panelHeight = rows * gridSize + 2;
+
+        this.setPreferredSize(new Dimension(panelWidth, panelHeight));
+        this.setMaximumSize(new Dimension(panelWidth, panelHeight));
+
+        this.setBorder(new BevelBorder(1));
+
+        gameHandler = new GameHandler(this);
+
+        gameHandler.setFramesPerFall((int) settings.get(GameSettings.FRAMESFORFALL));
+        gameHandler.setTimeBetweenFrames((double) settings.get(GameSettings.FRAMEGAP));
     }
 
     /**
