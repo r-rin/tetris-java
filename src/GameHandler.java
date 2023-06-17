@@ -17,16 +17,17 @@ public class GameHandler {
             {{0, 1, 0}, {1, 1, 1}}};
     private ArrayList<Grid> gridsOnField = new ArrayList<>();
     private Figure activeFigure = null;
-    private Random rand = new Random();
+    private final Random rand = new Random();
 
     private int framesPerFall = 50;
-    private double timeBetweenFrames = 0.1;
+    private int timeBetweenFrames = 100;
     private int currentFrame = 0;
 
     private UserAction action = null;
     private Sides actionDirection = null;
 
     private TetrisField field;
+    private ScoreCounter scoreCounter;
     private KeyEventHandler keyEventHandler;
 
     boolean gameEnded = true;
@@ -34,13 +35,16 @@ public class GameHandler {
     public GameHandler(TetrisField tetrisField) {
         this.field = tetrisField;
         this.keyEventHandler = new KeyEventHandler(this);
+        scoreCounter = tetrisField.gameWindow.sideMenu.scoreCounter;
         field.addKeyListener(keyEventHandler);
     }
 
     public void runGame() throws InterruptedException {
+        canMoveUp = (boolean) field.gameWindow.settings.get(GameSettings.CANMOVEUP);
+        field.setGridVisible((boolean) field.gameWindow.settings.get(GameSettings.DRAWGRIDNET));
         while (!gameEnded){
             field.repaint();
-            Thread.sleep((long) (timeBetweenFrames*1000));
+            Thread.sleep(timeBetweenFrames);
         }
     }
 
@@ -75,6 +79,9 @@ public class GameHandler {
             activeFigure.drawFigure(g);
         }
         currentFrame += 1;
+        if(!gameEnded){
+            scoreCounter.addPoints(1);
+        }
     }
 
     private void checkFigureBottom() {
@@ -98,6 +105,9 @@ public class GameHandler {
             } else if (action == UserAction.MOVE) {
                 if(!checkGridCollision(activeFigure, actionDirection) && !activeFigure.checkBorders(actionDirection)){
                     activeFigure.move(actionDirection, 1);
+                    if(actionDirection == Sides.BOTTOM){
+                        scoreCounter.addPoints(5);
+                    }
                 }
             }
         }
@@ -119,6 +129,7 @@ public class GameHandler {
         for(int currentRow = 0; currentRow < gridsMap.length; currentRow++){
             if(Arrays.stream(gridsMap[currentRow]).noneMatch(Objects::isNull)){
                 removeAllGrids(currentRow);
+                scoreCounter.addPoints(gridsMap[currentRow].length*50);
                 moveGridsDown(gridsMap, currentRow);
                 currentRow = 0;
                 gridsMap = buildGridMap();
@@ -177,7 +188,13 @@ public class GameHandler {
         int[][] selectedForm = possibleForms[rand.nextInt(0, possibleForms.length)];
         int xPos = field.getColumns()/2 - selectedForm[0].length/2;
         int yPos = -(selectedForm.length)+1;
-        Color randomColor = new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
+
+        int red = (rand.nextInt(256) + 128) % 256;
+        int green = (rand.nextInt(256) + 128) % 256;
+        int blue = (rand.nextInt(256) + 128) % 256;
+
+        Color randomColor = new Color(red, green, blue);
+        randomColor = randomColor.brighter();
 
         return new Figure(selectedForm, xPos, yPos, field, randomColor);
     }
@@ -213,6 +230,7 @@ public class GameHandler {
                     activeFigure = null;
                     field.requestFocus();
                     field.requestFocusInWindow();
+                    scoreCounter.setScore(0);
                     runGame();
                 }
                 return null;
@@ -232,7 +250,7 @@ public class GameHandler {
         this.framesPerFall = framesPerFall;
     }
 
-    public void setTimeBetweenFrames(double timeBetweenFrames) {
+    public void setTimeBetweenFrames(int timeBetweenFrames) {
         this.timeBetweenFrames = timeBetweenFrames;
     }
 }

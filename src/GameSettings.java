@@ -5,4 +5,5 @@ public enum GameSettings {
     FRAMESFORFALL,
     FRAMEGAP,
     CANMOVEUP,
+    DRAWGRIDNET,
 }

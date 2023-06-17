@@ -19,6 +19,7 @@ public class TetrisField extends JPanel {
     private int gridSize;
 
     GameHandler gameHandler;
+    GameWindow gameWindow;
 
     /**
      * Порожній конструктор
@@ -35,6 +36,7 @@ public class TetrisField extends JPanel {
         setFocusable(true);
         requestFocus();
         requestFocusInWindow();
+        this.setBackground(Color.BLACK);
         this.columns = columns;
         this.gridSize = gridSize;
         this.rows = rows;
@@ -50,10 +52,12 @@ public class TetrisField extends JPanel {
         gameHandler = new GameHandler(this);
     }
 
-    public TetrisField(HashMap<GameSettings, Object> settings) {
+    public TetrisField(HashMap<GameSettings, Object> settings, GameWindow gameWindow) {
         setFocusable(true);
         requestFocus();
         requestFocusInWindow();
+        this.setBackground(Color.DARK_GRAY);
+        this.gameWindow = gameWindow;
         this.columns = (int) settings.get(GameSettings.NCOLUMNS);
         this.gridSize = (int) settings.get(GameSettings.GRIDSIZE);
         this.rows = (int) settings.get(GameSettings.NROWS);
@@ -69,7 +73,7 @@ public class TetrisField extends JPanel {
         gameHandler = new GameHandler(this);
 
         gameHandler.setFramesPerFall((int) settings.get(GameSettings.FRAMESFORFALL));
-        gameHandler.setTimeBetweenFrames((double) settings.get(GameSettings.FRAMEGAP));
+        gameHandler.setTimeBetweenFrames((int) settings.get(GameSettings.FRAMEGAP));
     }
 
     /**
@@ -79,8 +83,10 @@ public class TetrisField extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         g.clearRect(0, 0, getWidth(), getHeight());
+        g.setColor(Color.BLACK);
+        g.fillRect(0, 0, getWidth(), getHeight());
         if(isGridVisible){
-            drawGridField(g, Color.lightGray);
+            drawGridField(g, Color.DARK_GRAY);
         }
         gameHandler.drawFrame(g);
     }

@@ -6,6 +6,7 @@
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.io.File;
 import java.util.HashMap;
 
 class GameWindow extends JFrame {
@@ -30,21 +31,18 @@ class GameWindow extends JFrame {
     }
 
     private void setBasicSettings() {
-        settings.put(GameSettings.NROWS, 16);
-        settings.put(GameSettings.NCOLUMNS, 8);
-        settings.put(GameSettings.GRIDSIZE, 35);
-        settings.put(GameSettings.FRAMEGAP, 0.1);
-        settings.put(GameSettings.FRAMESFORFALL, 25);
+        settings.put(GameSettings.NROWS, 20);
+        settings.put(GameSettings.NCOLUMNS, 20);
+        settings.put(GameSettings.GRIDSIZE, 20);
+        settings.put(GameSettings.FRAMEGAP, 100);
+        settings.put(GameSettings.FRAMESFORFALL, 20);
         settings.put(GameSettings.CANMOVEUP, false);
+        settings.put(GameSettings.DRAWGRIDNET, true);
     }
 
     private void initWindowPanels() {
-
-        //Налаштування розміру ігрового поля
-        //TODO: Перетворити на кнопки, слайдери у бічному меню.
-
         sideMenu = new SideMenu(this);
-        tetrisField = new TetrisField(settings);
+        tetrisField = new TetrisField(settings, this);
 
         wrapper = new JPanel();
         wrapper.setBackground(Color.black);
