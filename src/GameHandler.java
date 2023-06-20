@@ -11,17 +11,17 @@ import java.time.Instant;
 import java.util.*;
 import java.util.List;
 
+/**
+ * The GameHandler class manages the game state and logic.
+ */
 public class GameHandler {
 
     boolean disableAnyUpMoves = true;
-
     boolean canMoveUp = true;
-
     boolean limitedVision = false;
     double visibleGridDistance = 3.0;
 
     boolean isControlsShuffle = false;
-
     boolean doRandomMove = false;
     int doRandomMoveEachNFrame = 30;
     int randMoveCounter = 0;
@@ -38,6 +38,9 @@ public class GameHandler {
 
     long secondsOnPause = 0;
 
+    /**
+     * Array containing the possible forms of the tetris figure.
+     */
     private int[][][] possibleForms = {
             {{1, 1, 0}, {0, 1, 1}},
             {{1, 0}, {1, 0}, {1, 1}},
@@ -53,9 +56,8 @@ public class GameHandler {
             {{1, 1}, {0, 1}},
             {{0, 1, 0}, {1, 1, 1}, {0, 1, 0}, {0, 1, 0}},
             {{1, 1}, {1, 0}},
-            {{1, 0, 1}, {0, 1, 0}, {1, 0, 1}},
-
     };
+
     private ArrayList<Grid> gridsOnField = new ArrayList<>();
     private Figure activeFigure = null;
     private final Random rand = new Random();
@@ -77,6 +79,11 @@ public class GameHandler {
 
     private boolean onPause = false;
 
+    /**
+     * Constructs a GameHandler object.
+     *
+     * @param tetrisField The TetrisField object associated with the game.
+     */
     public GameHandler(TetrisField tetrisField) {
         this.field = tetrisField;
         this.keyEventHandler = new KeyEventHandler(this);
@@ -84,14 +91,19 @@ public class GameHandler {
         field.addKeyListener(keyEventHandler);
     }
 
+    /**
+     * Runs the game loop.
+     *
+     * @throws InterruptedException if the thread is interrupted.
+     */
     public void runGame() throws InterruptedException {
         getSettings();
         startTime = Instant.now();
-        while (!gameEnded){
-            if(!onPause){
+        while (!gameEnded) {
+            if (!onPause) {
                 field.repaint();
             } else {
-                if(action == UserAction.PAUSE){
+                if (action == UserAction.PAUSE) {
                     onPause = false;
                     pauseEndTime = Instant.now();
                     long timeElapsed = Duration.between(pauseStartTime, pauseEndTime).toSeconds();
@@ -106,6 +118,9 @@ public class GameHandler {
         field.gameWindow.leaderboard.addNewRoundResult(new RoundStats(field.gameWindow.leaderboard.currentName, scoreCounter.score, scoreCounter.multiplier, totalPlaytime, new HashMap<>(field.gameWindow.settings)));
     }
 
+    /**
+     * Retrieves the game settings from the TetrisField.
+     */
     private void getSettings() {
         canMoveUp = (boolean) field.gameWindow.settings.get(GameSettings.CANMOVEUP);
         field.setGridVisible((boolean) field.gameWindow.settings.get(GameSettings.DRAWGRIDNET));
@@ -117,18 +132,27 @@ public class GameHandler {
         disableAnyUpMoves = (boolean) field.gameWindow.settings.get(GameSettings.DISABLEANYUPMOVES);
     }
 
+    /**
+     * Draws the current frame of the game.
+     *
+     * @param g The graphics context.
+     */
     public void drawFrame(Graphics g) {
 
-        for(Grid grid : gridsOnField){
+        for (Grid grid : gridsOnField) {
             grid.fillGrid(g);
             grid.drawGrid(g);
         }
 
-        if (!gameEnded){
+        if (!gameEnded) {
             drawCurrentFrame(g);
         }
     }
 
+    /**
+     * Draws the current frame of the game on the specified graphics context.
+     * @param g The graphics context on which to draw the frame.
+     */
     private void drawCurrentFrame(Graphics g) {
         if(activeFigure == null){
             if(checkFilledRows()) return;
@@ -160,6 +184,10 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Performs a random move on the active figure, if the random move counter reaches the specified threshold.
+     * The random move can be in any allowed direction: right, bottom, left, and optionally top.
+     */
     private void doRandomMove() {
         if(randMoveCounter >= doRandomMoveEachNFrame){
             List<Sides> allowedMoves = new ArrayList<>();
@@ -176,6 +204,13 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Draws an inverted circle on the specified Graphics2D context.
+     * The inverted circle is created by subtracting an inner circular shape from an outer rectangular shape.
+     * The position and size of the inner circle are determined based on the active figure and the specified parameters.
+     *
+     * @param g The Graphics2D context on which to draw the inverted circle.
+     */
     private void drawInvertedCircle(Graphics2D g) {
         Shape outerRectangle = new Rectangle(0, 0, field.getWidth(), field.getHeight());
         Area outerArea = new Area(outerRectangle);
@@ -199,6 +234,11 @@ public class GameHandler {
         g2d.fill(outerArea);
     }
 
+    /**
+     * Checks if the active figure has reached the bottom of the game field.
+     * If the active figure collides with the grid or reaches the bottom border, it is considered to have reached the bottom.
+     * The used grids of the active figure are added to the grids on the field.
+     */
     private void checkFigureBottom() {
         if(checkGridCollision(activeFigure, Sides.BOTTOM) || activeFigure.checkBorders(Sides.BOTTOM)){
             gridsOnField.addAll(List.of(activeFigure.getUsedGrids()));
@@ -206,6 +246,15 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Performs the user action based on the current action and action direction.
+     * The supported user actions include:
+     * - ROTATE: Rotates the active figure in the specified action direction.
+     * - MOVE: Moves the active figure in the specified action direction.
+     * - PAUSE: Pauses the game and displays a "PAUSE" message on the graphics context if limited vision is enabled.
+     *
+     * @param g The graphics context on which to perform the user action.
+     */
     private void doUserAction(Graphics g) {
         if(action != null) {
             if(action == UserAction.ROTATE){
@@ -245,6 +294,14 @@ public class GameHandler {
         actionDirection = null;
     }
 
+    /**
+     * Checks for collision between the active figure and the grids on the field in a specific direction.
+     *
+     * @param activeFigure    the active figure to check collision with
+     * @param actionDirection the direction in which the collision is checked (e.g., left, right, up, down)
+     * @return {@code true} if there is a collision between the active figure and any of the grids on the field,
+     *         {@code false} otherwise
+     */
     private boolean checkGridCollision(Figure activeFigure, Sides actionDirection) {
         for(Grid grid : gridsOnField){
             if(activeFigure.checkCollisionWith(grid, actionDirection)) return true;
@@ -252,6 +309,11 @@ public class GameHandler {
         return false;
     }
 
+    /**
+     * Checks for filled rows in the grid and clears if there's any.
+     *
+     * @return true if one or more rows were cleared, false otherwise.
+     */
     private boolean checkFilledRows() {
         Grid[][] gridsMap = buildGridMap();
         boolean isCleared = false;
@@ -270,6 +332,11 @@ public class GameHandler {
         return isCleared;
     }
 
+    /**
+     * Builds a grid map based on the current positions of grids on the field.
+     *
+     * @return a 2D array representing the grid map.
+     */
     private Grid[][] buildGridMap() {
         Grid[][] gridsMap = new Grid[field.getRows()][field.getColumns()];
 
@@ -281,6 +348,11 @@ public class GameHandler {
         return gridsMap;
     }
 
+    /**
+     * Removes all grids from the specified row on the field.
+     *
+     * @param currentRow the row from which grids should be removed.
+     */
     private void removeAllGrids(int currentRow) {
         ArrayList<Grid> removeList = new ArrayList<>();
 
@@ -295,6 +367,12 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Moves grids in the grid map down from the specified row to the bottom.
+     *
+     * @param gridsMap the 2D array representing the grid map.
+     * @param toRow    the row until which the grids should be moved down.
+     */
     private void moveGridsDown(Grid[][] gridsMap, int toRow) {
         for(int currentRow = 0; currentRow < toRow; currentRow++){
             for(Grid selectedGrid : gridsMap[currentRow]){
@@ -305,6 +383,11 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Performs the falling action for the active figure if conditions are met.
+     * The figure will move down by one step if there is no grid collision
+     * and the figure has not reached the bottom border.
+     */
     private void doFigureFall() {
         if(currentFrame >= framesPerFall){
             if(!checkGridCollision(activeFigure, Sides.BOTTOM) && !activeFigure.checkBorders(Sides.BOTTOM)){
@@ -314,6 +397,11 @@ public class GameHandler {
         }
     }
 
+    /**
+     * Creates a new figure with a randomly selected form, position, and color.
+     *
+     * @return the newly created Figure object.
+     */
     private Figure createNewFigure() {
         int[][] selectedForm = possibleForms[rand.nextInt(0, possibleForms.length)];
         int xPos = field.getColumns()/2 - selectedForm[0].length/2;
@@ -331,26 +419,57 @@ public class GameHandler {
         return new Figure(selectedForm, xPos, yPos, field, randomColor);
     }
 
+    /**
+     * Retrieves the user action associated with this instance.
+     *
+     * @return the UserAction object representing the user's action.
+     */
     public UserAction getAction() {
         return action;
     }
 
+    /**
+     * Retrieves the direction of the user action.
+     *
+     * @return the Sides enum representing the direction of the action.
+     */
     public Sides getActionDirection() {
         return actionDirection;
     }
 
+    /**
+     * Sets the direction of the user action.
+     *
+     * @param actionDirection the Sides enum representing the direction of the action.
+     */
     public void setActionDirection(Sides actionDirection) {
         this.actionDirection = actionDirection;
     }
 
+    /**
+     * Sets the user action.
+     *
+     * @param action the UserAction object representing the user's action.
+     */
     public void setAction(UserAction action) {
         this.action = action;
     }
 
+    /**
+     * Checks if the active figure is null.
+     *
+     * @return true if the active figure is null, false otherwise.
+     */
     public boolean isActiveFigureNull() {
         return activeFigure == null;
     }
 
+    /**
+     * Restarts the game.
+     *
+     * @param button the JButton object associated with the restart action.
+     * @throws InterruptedException if the execution is interrupted.
+     */
     public void restart(JButton button) throws InterruptedException {
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
             @Override
@@ -380,18 +499,38 @@ public class GameHandler {
         worker.execute();
     }
 
+    /**
+     * Sets the number of frames per fall for the game.
+     *
+     * @param framesPerFall the number of frames per fall to be set.
+     */
     public void setFramesPerFall(int framesPerFall) {
         this.framesPerFall = framesPerFall;
     }
 
+    /**
+     * Sets the time between frames for the game.
+     *
+     * @param timeBetweenFrames the time between frames to be set.
+     */
     public void setTimeBetweenFrames(int timeBetweenFrames) {
         this.timeBetweenFrames = timeBetweenFrames;
     }
 
+    /**
+     * Sets the limited vision option for the game.
+     *
+     * @param limitedVision true to enable limited vision, false otherwise.
+     */
     public void setLimitedVision(boolean limitedVision) {
         this.limitedVision = limitedVision;
     }
 
+    /**
+     * Retrieves the TetrisField object associated with this instance.
+     *
+     * @return the TetrisField object.
+     */
     public TetrisField getField() {
         return field;
     }

@@ -17,6 +17,11 @@ class GameWindow extends JFrame {
     JPanel wrapper;
 
     Leaderboard leaderboard = new Leaderboard(this);
+
+    /**
+     * Constructs a GameWindow object.
+     * Initializes the window with default settings, sets up window panels, and displays the window.
+     */
     public GameWindow() {
         this.setMinimumSize(new Dimension(800, 500));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -32,6 +37,10 @@ class GameWindow extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * Sets up the basic settings for the game.
+     * Initializes the game settings with default values.
+     */
     private void setBasicSettings() {
         settings.put(GameSettings.NROWS, 20);
         settings.put(GameSettings.NCOLUMNS, 20);
@@ -48,6 +57,10 @@ class GameWindow extends JFrame {
         settings.put(GameSettings.DISABLEANYUPMOVES, true);
     }
 
+    /**
+     * Initializes the window panels and adds them to the game window.
+     * Creates a side menu panel and a Tetris field panel and adds them to the window.
+     */
     private void initWindowPanels() {
         sideMenu = new SideMenu(this);
         tetrisField = new TetrisField(settings, this);
@@ -63,6 +76,11 @@ class GameWindow extends JFrame {
         this.add(wrapper, BorderLayout.EAST);
     }
 
+    /**
+     * Retrieves the TetrisField object associated with this GameWindow.
+     *
+     * @return the TetrisField object.
+     */
     public TetrisField getTetrisField() {
         return tetrisField;
     }

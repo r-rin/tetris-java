@@ -13,6 +13,12 @@ public class SideMenu extends JPanel {
     GameWindow gameWindow;
 
     ScoreCounter scoreCounter = new ScoreCounter();
+
+    /**
+     * Constructs a SideMenu for the specified GameWindow.
+     *
+     * @param gameWindow The GameWindow associated with the SideMenu.
+     */
     public SideMenu(GameWindow gameWindow) {
         this.gameWindow = gameWindow;
         this.setLayout(new GridBagLayout());
@@ -22,6 +28,10 @@ public class SideMenu extends JPanel {
         initHolderPanel();
     }
 
+    /**
+     * Initializes the holder panel of the SideMenu, setting up its layout and adding various components.
+     * This method is called internally by the constructor.
+     */
     private void initHolderPanel() {
         JPanel holderPanel = new JPanel();
         holderPanel.setBackground(Color.BLACK);

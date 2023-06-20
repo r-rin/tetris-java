@@ -19,13 +19,43 @@ import java.util.ArrayList;
 import java.util.EventObject;
 
 public class LeaderboardDialog extends JDialog {
+    /**
+     * Button for loading the leaderboard.
+     */
     private JButton loadLeaderboardButton;
+
+    /**
+     * Button for exporting the leaderboard.
+     */
     private JButton exportLeaderboardButton;
+
+    /**
+     * Button for editing the username.
+     */
     private JButton editUsernameButton;
+
+    /**
+     * Table component for displaying the leaderboard.
+     */
     private JTable table = new JTable();
+
+    /**
+     * The GameWindow instance associated with the leaderboard.
+     */
     private GameWindow gameWindow;
+
+    /**
+     * Default table model for managing the data displayed in the leaderboard table.
+     */
     private DefaultTableModel tableModel;
 
+    /**
+     * Constructs a LeaderboardDialog with the specified GameWindow, title, and modality.
+     *
+     * @param frame The GameWindow instance associated with the leaderboard dialog.
+     * @param title The title of the leaderboard dialog.
+     * @param modal Specifies whether the dialog is modal or not.
+     */
     public LeaderboardDialog(GameWindow frame, String title, boolean modal) {
         super(frame, title, modal);
         this.gameWindow = frame;
@@ -35,6 +65,10 @@ public class LeaderboardDialog extends JDialog {
         createLayout();
     }
 
+    /**
+     * Initializes the components of the leaderboard dialog, such as buttons and event listeners.
+     * Sets up the appearance and behavior of the buttons.
+     */
     private void initializeComponents() {
         loadLeaderboardButton = new JButton("Load Leaderboard");
         loadLeaderboardButton.setBackground(Color.BLACK);
@@ -76,6 +110,10 @@ public class LeaderboardDialog extends JDialog {
         });
     }
 
+    /**
+     * Loads the leaderboard data from a file. Displays a file chooser dialog to select the leaderboard file,
+     * reads the data from the file, and updates the leaderboard and table data accordingly.
+     */
     private void loadLeaderboardArray() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Open Object File");
@@ -105,6 +143,10 @@ public class LeaderboardDialog extends JDialog {
         }
     }
 
+    /**
+     * Exports the leaderboard data to a file. Displays a file chooser dialog to specify the export location,
+     * serializes the leaderboard data and saves it to the selected file.
+     */
     private void exportLeaderboardArray() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save Object");
@@ -136,6 +178,10 @@ public class LeaderboardDialog extends JDialog {
         }
     }
 
+    /**
+     * Creates the layout of the leaderboard dialog. Constructs and configures the UI components, sets up the
+     * layout managers, and adds components to the dialog.
+     */
     private void createLayout() {
         JPanel contentPane = new JPanel();
         contentPane.setBackground(Color.BLACK);
@@ -188,6 +234,12 @@ public class LeaderboardDialog extends JDialog {
         this.setPreferredSize(minimumSize);
     }
 
+    /**
+     * Loads the table data into the leaderboard table. Updates the table model with the provided data array,
+     * replacing the existing table data.
+     *
+     * @param data The two-dimensional array of objects representing the table data.
+     */
     public void loadTableData(Object[][] data){
         tableModel.setRowCount(0);
         for (Object[] row : data) {
@@ -195,6 +247,10 @@ public class LeaderboardDialog extends JDialog {
         }
     }
 
+    /**
+     * Custom cell renderer for the "Round Settings" button column in the leaderboard table.
+     * Renders the button with the label "Settings".
+     */
     private class ButtonCellRenderer extends JButton implements TableCellRenderer {
         public ButtonCellRenderer() {
             setOpaque(true);
@@ -208,6 +264,10 @@ public class LeaderboardDialog extends JDialog {
         }
     }
 
+    /**
+     * Custom cell editor for the "Round Settings" button column in the leaderboard table.
+     * Handles the editing of the button cell and triggers the SettingsDialog when the button is clicked.
+     */
     private class ButtonCellEditor extends AbstractCellEditor implements TableCellEditor {
         private JButton button;
 

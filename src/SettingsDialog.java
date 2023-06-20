@@ -32,6 +32,13 @@ public class SettingsDialog extends JDialog {
     private GameWindow gameWindow;
     private boolean buttonPressed = false;
 
+    /**
+     * Creates a new instance of the SettingsDialog class.
+     *
+     * @param frame  the GameWindow frame associated with the dialog
+     * @param title  the title of the dialog
+     * @param locked a boolean indicating if the dialog should be locked
+     */
     public SettingsDialog(GameWindow frame, String title, boolean locked) {
         super(frame, title, locked);
         this.gameWindow = frame;
@@ -83,6 +90,14 @@ public class SettingsDialog extends JDialog {
         this.setResizable(false);
     }
 
+    /**
+     * Creates a new instance of the SettingsDialog class with round settings.
+     *
+     * @param frame         the GameWindow frame associated with the dialog
+     * @param title         the title of the dialog
+     * @param locked        a boolean indicating if the dialog should be locked
+     * @param roundSettings a HashMap containing the round settings
+     */
     public SettingsDialog(GameWindow frame, String title, boolean locked, HashMap<GameSettings, Object> roundSettings) {
         super(frame, title, locked);
         this.gameWindow = frame;
@@ -123,6 +138,11 @@ public class SettingsDialog extends JDialog {
         this.setResizable(false);
     }
 
+    /**
+     * Loads and returns a JPanel containing the settings panels and modifiers for the SettingsDialog.
+     *
+     * @return a JPanel with settings panels and modifiers
+     */
     private JPanel loadSettingsPanelsCopy() {
         JPanel holderPanel = new JPanel();
         holderPanel.setBackground(Color.BLACK);
@@ -276,6 +296,11 @@ public class SettingsDialog extends JDialog {
         return holderPanel;
     }
 
+    /**
+     * Creates a JPanel that contains settings and modifiers panels for a graphical user interface (GUI).
+     *
+     * @return The JPanel containing the settings and modifiers panels.
+     */
     private JPanel loadSettingsPanels() {
         JPanel holderPanel = new JPanel();
         holderPanel.setBackground(Color.BLACK);
@@ -415,6 +440,12 @@ public class SettingsDialog extends JDialog {
         return holderPanel;
     }
 
+    /**
+     * Generates a JLabel with the specified title, customized with black background and white foreground colors.
+     *
+     * @param title The text to be displayed on the label.
+     * @return The JLabel with the specified title and custom styling.
+     */
     private JLabel generateLabel(String title) {
         JLabel label = new JLabel(title);
         label.setBackground(Color.BLACK);
@@ -422,6 +453,14 @@ public class SettingsDialog extends JDialog {
         return label;
     }
 
+    /**
+     * Creates a JSpinner with the specified initial value, minimum value, maximum value, and step size of 1.
+     *
+     * @param value The initial value of the spinner.
+     * @param min The minimum value allowed for the spinner.
+     * @param max The maximum value allowed for the spinner.
+     * @return The JSpinner with the specified configuration.
+     */
     private JSpinner createSpinner(int value, int min, int max) {
         return new JSpinner(new SpinnerNumberModel(value, min, max, 1));
     }
