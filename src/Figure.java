@@ -1,6 +1,6 @@
 /* File: Figure.java
- * Authors: Rafikov Rinat, ?
- * Клас, який описує фігуру.
+ * Authors: Rafikov Rinat
+ * Class, which describes a figure.
  */
 
 import java.awt.*;

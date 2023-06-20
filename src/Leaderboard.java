@@ -1,3 +1,8 @@
+/* File: Leaderboard.java
+ * Authors: Rafikov Rinat
+ * Class, that is used to store and edit rounds and their stats.
+ */
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

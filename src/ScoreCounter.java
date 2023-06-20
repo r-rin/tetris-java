@@ -1,3 +1,8 @@
+/* File: ScoreCounter.java
+ * Authors: Rafikov Rinat
+ * Class, that is used to store and count amount of points gained by the player.
+ */
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;

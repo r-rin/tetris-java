@@ -1,6 +1,6 @@
 /* File: TetrisField.java
- * Authors: Rafikov Rinat, ?
- * Клас, який створює та малює ігрове поле
+ * Authors: Rafikov Rinat
+ * Class, that creates playing field.
  */
 
 import javax.swing.*;

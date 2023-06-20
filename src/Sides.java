@@ -1,3 +1,8 @@
+/* File: Sides.java
+ * Authors: Rafikov Rinat
+ * Class, that contains enumeration of figure sides/directions.
+ */
+
 import java.util.*;
 
 public enum Sides {

@@ -1,3 +1,8 @@
+/* File: LeaderboardDialog.java
+ * Authors: Rafikov Rinat
+ * Class, that creates dialog frame.
+ */
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -11,7 +16,6 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EventObject;
 
 public class LeaderboardDialog extends JDialog {

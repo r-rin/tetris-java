@@ -1,3 +1,8 @@
+/* File: RoundStats.java
+ * Authors: Rafikov Rinat
+ * Class, that describes a round and contains its data.
+ */
+
 import java.io.Serializable;
 import java.util.HashMap;
 

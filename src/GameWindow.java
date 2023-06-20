@@ -1,6 +1,6 @@
 /* File: GameWindow.java
- * Authors: Rafikov Rinat, ?
- * Клас, який створює ігрове вікно та додає базові елементи(бічне меню, ігрове поле).
+ * Authors: Rafikov Rinat
+ * Class, that creates game windows and adds basic user interface.
  */
 
 import javax.swing.*;

@@ -1,6 +1,6 @@
 /* File: Grid.java
- * Authors: Rafikov Rinat, ?
- * Клас, який описує клітинку ігрового поля.
+ * Authors: Rafikov Rinat
+ * Class, which describes a grid/square.
  */
 
 import java.awt.*;

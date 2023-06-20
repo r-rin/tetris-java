@@ -1,3 +1,7 @@
+/* File: GameSettings.java
+ * Authors: Rafikov Rinat
+ * Class, that contains an enumeration of different game settings.
+ */
 public enum GameSettings {
     NROWS,
     NCOLUMNS,

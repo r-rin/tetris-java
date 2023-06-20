@@ -1,3 +1,7 @@
+/* File: GameHandler.java
+ * Authors: Rafikov Rinat
+ * Class, that handles game logic.
+ */
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Area;

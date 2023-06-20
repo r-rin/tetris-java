@@ -1,6 +1,6 @@
 /* File: SideMenu.java
- * Authors: Rafikov Rinat, ?
- * Клас, який описує бічне меню, у якому будуть міститися різні кнопки, налаштування, панель вибору ускладнень тощо.
+ * Authors: Rafikov Rinat
+ * Class, that loads side menu.
  */
 
 import javax.swing.*;
