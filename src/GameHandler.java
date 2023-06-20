@@ -34,11 +34,24 @@ public class GameHandler {
 
     long secondsOnPause = 0;
 
-    private int[][][] possibleForms = {{{1, 1, 0}, {0, 1, 1}},
+    private int[][][] possibleForms = {
+            {{1, 1, 0}, {0, 1, 1}},
             {{1, 0}, {1, 0}, {1, 1}},
             {{1, 1}, {1, 1}},
             {{1, 1, 1, 1}},
-            {{0, 1, 0}, {1, 1, 1}}};
+            {{0, 1, 1}, {1, 1, 0}},
+            {{1, 1}},
+            {{0, 1, 0}, {1, 1, 1}, {0, 1, 0}},
+            {{1}},
+            {{0, 1}, {1, 0}},
+            {{0, 1}, {0, 1}, {1, 1}},
+            {{0, 1, 0}, {1, 1, 1}},
+            {{1, 1}, {0, 1}},
+            {{0, 1, 0}, {1, 1, 1}, {0, 1, 0}, {0, 1, 0}},
+            {{1, 1}, {1, 0}},
+            {{1, 0, 1}, {0, 1, 0}, {1, 0, 1}},
+
+    };
     private ArrayList<Grid> gridsOnField = new ArrayList<>();
     private Figure activeFigure = null;
     private final Random rand = new Random();
