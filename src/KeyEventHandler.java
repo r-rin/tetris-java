@@ -32,7 +32,7 @@ public class KeyEventHandler implements KeyListener {
                         gameHandler.setActionDirection(Sides.BOTTOM);
                     }
                     case (38), (87) -> {
-                        if (gameHandler.canMoveUp) {
+                        if (gameHandler.canMoveUp || gameHandler.isControlsShuffle) {
                             gameHandler.setAction(UserAction.MOVE);
                             gameHandler.setActionDirection(Sides.TOP);
                         }
@@ -44,6 +44,9 @@ public class KeyEventHandler implements KeyListener {
                     case (69) -> {
                         gameHandler.setAction(UserAction.ROTATE);
                         gameHandler.setActionDirection(Sides.RIGHT);
+                    }
+                    case (80) -> {
+                        gameHandler.setAction(UserAction.PAUSE);
                     }
                 }
             }

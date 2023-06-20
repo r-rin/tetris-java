@@ -67,7 +67,17 @@ public class SideMenu extends JPanel {
             settingsDialog.setVisible(true);
         });
 
+        JButton openLeaderboard = new JButton("LEADERBOARD");
+        openLeaderboard.setBackground(Color.DARK_GRAY);
+        openLeaderboard.setBorder(new LineBorder(Color.WHITE, 1, true));
+        openLeaderboard.setForeground(Color.WHITE);
+        openLeaderboard.setFocusable(false);
+        openLeaderboard.addActionListener(e -> {
+            gameWindow.leaderboard.openDialog();
+        });
+
         holderPanel.add(openSettings);
+        holderPanel.add(openLeaderboard);
 
         try {
             Font customFont = new Font("RupturedSans", Font.PLAIN, 36);
@@ -78,6 +88,7 @@ public class SideMenu extends JPanel {
 
             openSettings.setFont(new Font("Sathu", Font.BOLD, 20));
             startRound.setFont(new Font("Sathu", Font.BOLD, 20));
+            openLeaderboard.setFont(new Font("Sathu", Font.BOLD, 20));
 
         } catch (Exception e){
             System.out.println("Unable to load title font.");

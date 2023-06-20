@@ -12,6 +12,8 @@ public class ScoreCounter extends JPanel {
     JLabel scoreLabel = new JLabel();
     JLabel multiplierLabel = new JLabel();
 
+    SideMenu sideMenu;
+
     public ScoreCounter(){
         JPanel scoreContainer = new JPanel();
         scoreContainer.setLayout(new BorderLayout());
@@ -65,13 +67,37 @@ public class ScoreCounter extends JPanel {
         int timeGap = (int) settings.get(GameSettings.FRAMEGAP);
         int framesForFall = (int) settings.get(GameSettings.FRAMESFORFALL);
         boolean canMoveUp = (boolean) settings.get(GameSettings.CANMOVEUP);
+        boolean disableMoveUp = (boolean) settings.get(GameSettings.DISABLEANYUPMOVES);
+        boolean shuffledControls = (boolean) settings.get(GameSettings.CONTROLSSHUFFLE);
+        boolean doRandomMoves = (boolean) settings.get(GameSettings.RANDOMMOVES);
+        int randMoveEachFrame = (int) settings.get(GameSettings.RANDOMMOVEEACHNFRAME);
+        boolean limitedVision = (boolean) settings.get(GameSettings.LIMITEDVISION);
+        double visionDistance = (double) settings.get(GameSettings.VISIONDISTANCE);
 
         double mult = (400.0/(nRows * nColumns)) * (100.0/timeGap) * (20.0/framesForFall);
 
-        if(canMoveUp){
+        if(canMoveUp && !disableMoveUp){
             mult *= 0.1;
         }
 
-        setMultiplier(mult);
+        if(disableMoveUp){
+            if(shuffledControls){
+                mult *= 1.5;
+            }
+            if (doRandomMoves){
+                mult *= (30.0/randMoveEachFrame);
+            }
+        }
+
+        if(limitedVision){
+            mult *= Math.min(nRows, nColumns)/visionDistance;
+        }
+
+        String numToString = String.valueOf(mult);
+
+        int decimalIndex = numToString.indexOf(".");
+        numToString = numToString.substring(0, decimalIndex + 2);
+
+        setMultiplier(Double.parseDouble(numToString));
     }
 }

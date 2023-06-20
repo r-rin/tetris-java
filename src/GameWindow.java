@@ -15,11 +15,13 @@ class GameWindow extends JFrame {
     HashMap<GameSettings, Object> settings = new HashMap<>();
     SideMenu sideMenu;
     JPanel wrapper;
+
+    Leaderboard leaderboard = new Leaderboard(this);
     public GameWindow() {
         this.setMinimumSize(new Dimension(800, 500));
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
-        this.setResizable(true);
+        this.setResizable(false);
         this.setLocationRelativeTo(null);
 
         setBasicSettings();
@@ -38,6 +40,12 @@ class GameWindow extends JFrame {
         settings.put(GameSettings.FRAMESFORFALL, 20);
         settings.put(GameSettings.CANMOVEUP, false);
         settings.put(GameSettings.DRAWGRIDNET, true);
+        settings.put(GameSettings.LIMITEDVISION, false);
+        settings.put(GameSettings.VISIONDISTANCE, 3.0);
+        settings.put(GameSettings.CONTROLSSHUFFLE, false);
+        settings.put(GameSettings.RANDOMMOVES, false);
+        settings.put(GameSettings.RANDOMMOVEEACHNFRAME, 30);
+        settings.put(GameSettings.DISABLEANYUPMOVES, true);
     }
 
     private void initWindowPanels() {

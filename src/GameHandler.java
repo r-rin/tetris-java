@@ -1,14 +1,38 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.awt.geom.Area;
+import java.awt.geom.Ellipse2D;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 
 public class GameHandler {
 
+    boolean disableAnyUpMoves = true;
+
     boolean canMoveUp = true;
+
+    boolean limitedVision = false;
+    double visibleGridDistance = 3.0;
+
+    boolean isControlsShuffle = false;
+
+    boolean doRandomMove = false;
+    int doRandomMoveEachNFrame = 30;
+    int randMoveCounter = 0;
+
+    List<Sides> arrayToShuffle = Arrays.asList(Sides.TOP, Sides.RIGHT, Sides.BOTTOM, Sides.LEFT);
+
+    Instant startTime;
+    Instant endTime;
+
+    long totalPlaytime = 0;
+
+    Instant pauseStartTime;
+    Instant pauseEndTime;
+
+    long secondsOnPause = 0;
 
     private int[][][] possibleForms = {{{1, 1, 0}, {0, 1, 1}},
             {{1, 0}, {1, 0}, {1, 1}},
@@ -32,6 +56,10 @@ public class GameHandler {
 
     boolean gameEnded = true;
 
+    private final Random random = new Random();
+
+    private boolean onPause = false;
+
     public GameHandler(TetrisField tetrisField) {
         this.field = tetrisField;
         this.keyEventHandler = new KeyEventHandler(this);
@@ -40,12 +68,36 @@ public class GameHandler {
     }
 
     public void runGame() throws InterruptedException {
-        canMoveUp = (boolean) field.gameWindow.settings.get(GameSettings.CANMOVEUP);
-        field.setGridVisible((boolean) field.gameWindow.settings.get(GameSettings.DRAWGRIDNET));
+        getSettings();
+        startTime = Instant.now();
         while (!gameEnded){
-            field.repaint();
+            if(!onPause){
+                field.repaint();
+            } else {
+                if(action == UserAction.PAUSE){
+                    onPause = false;
+                    pauseEndTime = Instant.now();
+                    long timeElapsed = Duration.between(pauseStartTime, pauseEndTime).toSeconds();
+                    secondsOnPause += timeElapsed;
+                }
+                action = null;
+            }
             Thread.sleep(timeBetweenFrames);
         }
+        endTime = Instant.now();
+        totalPlaytime = Duration.between(startTime, endTime).toSeconds() - secondsOnPause;
+        field.gameWindow.leaderboard.addNewRoundResult(new RoundStats(field.gameWindow.leaderboard.currentName, scoreCounter.score, scoreCounter.multiplier, totalPlaytime, new HashMap<>(field.gameWindow.settings)));
+    }
+
+    private void getSettings() {
+        canMoveUp = (boolean) field.gameWindow.settings.get(GameSettings.CANMOVEUP);
+        field.setGridVisible((boolean) field.gameWindow.settings.get(GameSettings.DRAWGRIDNET));
+        limitedVision = (boolean) field.gameWindow.settings.get(GameSettings.LIMITEDVISION);
+        visibleGridDistance = (double) field.gameWindow.settings.get(GameSettings.VISIONDISTANCE);
+        isControlsShuffle = (boolean) field.gameWindow.settings.get(GameSettings.CONTROLSSHUFFLE);
+        doRandomMove = (boolean) field.gameWindow.settings.get(GameSettings.RANDOMMOVES);
+        doRandomMoveEachNFrame = (int) field.gameWindow.settings.get(GameSettings.RANDOMMOVEEACHNFRAME);
+        disableAnyUpMoves = (boolean) field.gameWindow.settings.get(GameSettings.DISABLEANYUPMOVES);
     }
 
     public void drawFrame(Graphics g) {
@@ -74,14 +126,60 @@ public class GameHandler {
         }
         checkFigureBottom();
         if(activeFigure != null){
-            doUserAction();
+            doUserAction(g);
+            if(onPause) return;
             doFigureFall();
+            if(doRandomMove) doRandomMove();
             activeFigure.drawFigure(g);
         }
+
+        if(limitedVision){
+            drawInvertedCircle((Graphics2D) g);
+        }
+        randMoveCounter += 1;
         currentFrame += 1;
         if(!gameEnded){
             scoreCounter.addPoints(1);
         }
+    }
+
+    private void doRandomMove() {
+        if(randMoveCounter >= doRandomMoveEachNFrame){
+            List<Sides> allowedMoves = new ArrayList<>();
+            allowedMoves.add(Sides.RIGHT);
+            allowedMoves.add(Sides.BOTTOM);
+            allowedMoves.add(Sides.LEFT);
+            if(!disableAnyUpMoves) allowedMoves.add(Sides.TOP);
+            Sides randomSide = allowedMoves.get(random.nextInt(allowedMoves.size()));
+
+            if(!checkGridCollision(activeFigure, randomSide) && !activeFigure.checkBorders(randomSide)){
+                activeFigure.move(randomSide, 1);
+                randMoveCounter = 0;
+            }
+        }
+    }
+
+    private void drawInvertedCircle(Graphics2D g) {
+        Shape outerRectangle = new Rectangle(0, 0, field.getWidth(), field.getHeight());
+        Area outerArea = new Area(outerRectangle);
+
+        int circleX = 0;
+        int circleY = 0;
+        double circleRad = 0;
+        if(activeFigure != null){
+            int gridSize = field.getGridSize();
+            circleRad = visibleGridDistance * 2 * gridSize;
+            circleX = (int)((activeFigure.getFigureForm()[0].length / 2.0)*gridSize) + activeFigure.getX()*gridSize - (int) (circleRad/2);
+            circleY = (int)((activeFigure.getFigureForm().length / 2.0)*gridSize) + activeFigure.getY()*gridSize - (int) (circleRad/2);
+        }
+        Shape innerCircle = new Ellipse2D.Double(circleX, circleY, circleRad, circleRad);
+        Area circleArea = new Area(innerCircle);
+        outerArea.subtract(circleArea);
+
+        Graphics2D g2d = g;
+
+        g2d.setColor(Color.BLACK);
+        g2d.fill(outerArea);
     }
 
     private void checkFigureBottom() {
@@ -91,7 +189,7 @@ public class GameHandler {
         }
     }
 
-    private void doUserAction() {
+    private void doUserAction(Graphics g) {
         if(action != null) {
             if(action == UserAction.ROTATE){
                 int[][] previousForm = activeFigure.getFigureForm();
@@ -103,11 +201,26 @@ public class GameHandler {
                     activeFigure.setUsedGrids(activeFigure.findGrids());
                 }
             } else if (action == UserAction.MOVE) {
+                if(isControlsShuffle) actionDirection = arrayToShuffle.get(actionDirection.getValue());
                 if(!checkGridCollision(activeFigure, actionDirection) && !activeFigure.checkBorders(actionDirection)){
-                    activeFigure.move(actionDirection, 1);
+                    if(!(disableAnyUpMoves && actionDirection == Sides.TOP)){
+                        activeFigure.move(actionDirection, 1);
+                    }
                     if(actionDirection == Sides.BOTTOM){
                         scoreCounter.addPoints(5);
                     }
+                }
+            } else if (action == UserAction.PAUSE) {
+                onPause = true;
+                pauseStartTime = Instant.now();
+                if(limitedVision){
+                    g.setColor(Color.BLACK);
+                    g.fillRect(0, 0, field.getWidth(), field.getHeight());
+                    FontMetrics metrics = g.getFontMetrics();
+                    int x = (field.getWidth() - metrics.stringWidth("PAUSE")) / 2;
+                    int y = ((field.getHeight() - metrics.getHeight()) / 2) + metrics.getAscent();
+                    g.setColor(Color.WHITE);
+                    g.drawString("PAUSE", x, y);
                 }
             }
         }
@@ -144,7 +257,7 @@ public class GameHandler {
         Grid[][] gridsMap = new Grid[field.getRows()][field.getColumns()];
 
         for(Grid grid : gridsOnField){
-            if(grid.getY() > -1){
+            if(grid.getY() > -1 && grid.getX() > -1){
                 gridsMap[grid.getY()][grid.getX()] = grid;
             }
         }
@@ -196,6 +309,8 @@ public class GameHandler {
         Color randomColor = new Color(red, green, blue);
         randomColor = randomColor.brighter();
 
+        Collections.shuffle(arrayToShuffle);
+
         return new Figure(selectedForm, xPos, yPos, field, randomColor);
     }
 
@@ -226,6 +341,8 @@ public class GameHandler {
                 if(gameEnded){
                     button.setEnabled(false);
                     gameEnded = false;
+                    currentFrame = 0;
+                    randMoveCounter = 0;
                     gridsOnField = new ArrayList<>();
                     activeFigure = null;
                     field.requestFocus();
@@ -252,5 +369,13 @@ public class GameHandler {
 
     public void setTimeBetweenFrames(int timeBetweenFrames) {
         this.timeBetweenFrames = timeBetweenFrames;
+    }
+
+    public void setLimitedVision(boolean limitedVision) {
+        this.limitedVision = limitedVision;
+    }
+
+    public TetrisField getField() {
+        return field;
     }
 }
